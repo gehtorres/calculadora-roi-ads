@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de ROI de Anúncios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f7e7e1;
+    --plum: #4a2545;
+    --plum-light: #6b3a63;
+    --gold: #c9a227;
+    --charcoal: #2b2320;
+    --white: #ffffff;
+    --danger: #b3432b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(160deg, var(--blush) 0%, #fff 55%);
+    color: var(--charcoal);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(74, 37, 69, 0.12);
+    max-width: 460px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .header {
+    background: var(--plum);
+    color: var(--white);
+    padding: 32px 32px 28px;
+    position: relative;
+  }
+
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 4px;
+    background: var(--gold);
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  .body {
+    padding: 32px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--plum);
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #e6d9d3;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--gold);
+  }
+
+  .prefix {
+    background: var(--blush);
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--plum);
+    font-weight: 600;
+  }
+
+  input[type="number"] {
+    border: none;
+    outline: none;
+    padding: 12px 14px;
+    font-size: 15px;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    color: var(--charcoal);
+  }
+
+  button {
+    width: 100%;
+    background: var(--plum);
+    color: var(--white);
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background 0.15s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:hover {
+    background: var(--plum-light);
+  }
+
+  .result {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    display: none;
+  }
+
+  .result.show {
+    display: block;
+  }
+
+  .result-label {
+    font-size: 13px;
+    color: #7a7a7a;
+    margin-bottom: 4px;
+  }
+
+  .result-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 700;
+  }
+
+  .result-value.positive { color: #2f7d4f; }
+  .result-value.negative { color: var(--danger); }
+
+  .result-note {
+    font-size: 13px;
+    color: #7a7a7a;
+    margin-top: 6px;
+  }
+
+  .bar-track {
+    height: 8px;
+    background: #f0e9e7;
+    border-radius: 4px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .bar-fill.positive { background: #2f7d4f; }
+  .bar-fill.negative { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div class="eyebrow">Painel de Marketing</div>
+    <h1>Calculadora de ROI<br>de Anúncios</h1>
+  </div>
+
+  <div class="body">
+    <div class="field">
+      <label for="investimento">Valor investido em anúncios</label>
+      <div class="input-wrap">
+        <span class="prefix">R$</span>
+        <input type="number" id="investimento" placeholder="Ex: 500" min="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="retorno">Retorno gerado (vendas)</label>
+      <div class="input-wrap">
+        <span class="prefix">R$</span>
+        <input type="number" id="retorno" placeholder="Ex: 1500" min="0" step="0.01">
+      </div>
+    </div>
+
+    <button onclick="calcularROI()">Calcular ROI</button>
+
+    <div class="result" id="resultBox">
+      <div class="result-label">Retorno sobre investimento</div>
+      <div class="result-value" id="resultValue">0%</div>
+      <div class="result-note" id="resultNote"></div>
+      <div class="bar-track">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calcularROI() {
+    const investimento = parseFloat(document.getElementById('investimento').value);
+    const retorno = parseFloat(document.getElementById('retorno').value);
+
+    const resultBox = document.getElementById('resultBox');
+    const resultValue = document.getElementById('resultValue');
+    const resultNote = document.getElementById('resultNote');
+    const barFill = document.getElementById('barFill');
+
+    if (isNaN(investimento) || investimento <= 0 || isNaN(retorno)) {
+      alert('Preencha os dois campos. O investimento precisa ser maior que zero.');
+      return;
+    }
+
+    const roi = ((retorno - investimento) / investimento) * 100;
+    const isPositive = roi >= 0;
+
+    resultValue.textContent = roi.toFixed(1) + '%';
+    resultValue.className = 'result-value ' + (isPositive ? 'positive' : 'negative');
+
+    resultNote.textContent = isPositive
+      ? 'Cada R$1 investido voltou como R$' + (retorno / investimento).toFixed(2)
+      : 'O investimento ainda não se pagou.';
+
+    const barWidth = Math.min(Math.abs(roi), 100);
+    barFill.style.width = barWidth + '%';
+    barFill.className = 'bar-fill ' + (isPositive ? 'positive' : 'negative');
+
+    resultBox.classList.add('show');
+  }
+</script>
+
+</body>
+</html>
